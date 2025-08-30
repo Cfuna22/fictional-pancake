@@ -5,6 +5,11 @@ The app creates realistic datasets and provides visual dashboards that can be ex
 
 ---
 
+## 🌐 Live Demo  
+👉 [Try it here on Render](https://tc-wskp.onrender.com)  
+
+---
+
 ## 🚀 Features
 - ✅ Generate **realistic CRM data** (customers, deals, feedback, sentiment).
 - ✅ Download data as **CSV or ZIP** for Tableau.
