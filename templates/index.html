@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Sentiment Data Generator</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-chart-line me-2"></i>
+                CRM Sentiment Dashboard Generator
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('index') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('tableau_guide') }}">Tableau Guide</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else ('warning' if category == 'warning' else 'success') }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Hero Section -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="hero-section text-center p-5 rounded">
+                    <h1 class="display-4 mb-3">
+                        <i class="fas fa-database me-3"></i>
+                        Customer Sentiment & CRM Data Generator
+                    </h1>
+                    <p class="lead mb-4">
+                        Generate realistic CRM and sentiment data for your Tableau hackathon project. 
+                        Create comprehensive dashboards with customer insights, churn analysis, and AI-powered recommendations.
+                    </p>
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                                <span class="badge bg-primary p-2">
+                                    <i class="fas fa-users me-1"></i> Customer Data
+                                </span>
+                                <span class="badge bg-success p-2">
+                                    <i class="fas fa-handshake me-1"></i> Deal Pipeline
+                                </span>
+                                <span class="badge bg-warning p-2">
+                                    <i class="fas fa-heart me-1"></i> Sentiment Analysis
+                                </span>
+                                <span class="badge bg-info p-2">
+                                    <i class="fas fa-brain me-1"></i> AI Recommendations
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="row mb-5">
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="feature-card h-100 p-4 text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-users fa-2x text-primary"></i>
+                    </div>
+                    <h5>Realistic Customers</h5>
+                    <p class="text-muted">Generate authentic customer profiles with segments, regions, and company details</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="feature-card h-100 p-4 text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-chart-line fa-2x text-success"></i>
+                    </div>
+                    <h5>Deal Pipeline</h5>
+                    <p class="text-muted">Complete sales pipeline with stages, probabilities, and revenue data</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="feature-card h-100 p-4 text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-heart fa-2x text-warning"></i>
+                    </div>
+                    <h5>Sentiment Analysis</h5>
+                    <p class="text-muted">Customer feedback with sentiment scores and churn risk assessment</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="feature-card h-100 p-4 text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-brain fa-2x text-info"></i>
+                    </div>
+                    <h5>AI Insights</h5>
+                    <p class="text-muted">Automated recommendations and actionable insights from your data</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Generation Form -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-cog me-2"></i>
+                            Generate Your Dataset
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('generate_data') }}">
+                            <!-- Number of Customers -->
+                            <div class="mb-4">
+                                <label for="num_customers" class="form-label">
+                                    <i class="fas fa-users me-1"></i>
+                                    Number of Customers
+                                </label>
+                                <input type="number" class="form-control" id="num_customers" name="num_customers" 
+                                       value="500" min="100" max="2000" required>
+                                <div class="form-text">Recommended: 500-1000 for hackathon demos</div>
+                            </div>
+
+                            <!-- Regions -->
+                            <div class="mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-globe me-1"></i>
+                                    Geographic Regions
+                                </label>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="North America" 
+                                                   id="region_na" name="regions" checked>
+                                            <label class="form-check-label" for="region_na">
+                                                North America
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="Europe" 
+                                                   id="region_eu" name="regions" checked>
+                                            <label class="form-check-label" for="region_eu">
+                                                Europe
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="APAC" 
+                                                   id="region_apac" name="regions" checked>
+                                            <label class="form-check-label" for="region_apac">
+                                                APAC
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Customer Segments -->
+                            <div class="mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-building me-1"></i>
+                                    Customer Segments
+                                </label>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="SMB" 
+                                                   id="segment_smb" name="segments" checked>
+                                            <label class="form-check-label" for="segment_smb">
+                                                SMB (Small Business)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="Mid-Market" 
+                                                   id="segment_mm" name="segments" checked>
+                                            <label class="form-check-label" for="segment_mm">
+                                                Mid-Market
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="Enterprise" 
+                                                   id="segment_ent" name="segments" checked>
+                                            <label class="form-check-label" for="segment_ent">
+                                                Enterprise
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Generate Button -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-rocket me-2"></i>
+                                    Generate CRM Dataset
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- What's Included Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h2 class="text-center mb-4">What's Included in Your Dataset</h2>
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-primary">
+                                <h5 class="card-title mb-0 text-white">
+                                    <i class="fas fa-address-book me-2"></i>
+                                    Customer Data
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Customer ID & Names</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Company Information</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Contact Details</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Segment & Region</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Account Managers</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Activity Timestamps</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-success">
+                                <h5 class="card-title mb-0 text-white">
+                                    <i class="fas fa-handshake me-2"></i>
+                                    Deal Pipeline
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Deal Size & Stages</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Close Probability</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Expected Close Dates</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Product Information</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Deal Sources</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Sales Owners</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-warning">
+                                <h5 class="card-title mb-0 text-dark">
+                                    <i class="fas fa-comments me-2"></i>
+                                    Sentiment & Feedback
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Realistic Feedback Text</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Sentiment Scores (-1 to 1)</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Churn Risk Levels</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Feedback Channels</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Response Times</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Issue Categories</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="row mt-5 mb-4">
+            <div class="col-12">
+                <div class="card bg-secondary">
+                    <div class="card-body text-center">
+                        <h4><i class="fas fa-lightbulb me-2"></i>Next Steps</h4>
+                        <p class="mb-3">After generating your data, you'll be able to:</p>
+                        <div class="row">
+                            <div class="col-md-3 mb-2">
+                                <i class="fas fa-download fa-2x text-primary mb-2"></i>
+                                <p class="small">Download CSV files</p>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <i class="fas fa-chart-bar fa-2x text-success mb-2"></i>
+                                <p class="small">Preview your data</p>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <i class="fas fa-magic fa-2x text-warning mb-2"></i>
+                                <p class="small">Get AI recommendations</p>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <i class="fas fa-book fa-2x text-info mb-2"></i>
+                                <p class="small">Follow Tableau guide</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-center py-4 mt-5">
+        <div class="container">
+            <p class="mb-0 text-muted">
+                <i class="fas fa-code me-1"></i>
+                Built for Tableau Hackathon Success | 
+                <a href="{{ url_for('tableau_guide') }}" class="text-decoration-none">Tableau Integration Guide</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

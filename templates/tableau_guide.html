@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau Integration Guide</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-chart-line me-2"></i>
+                CRM Sentiment Dashboard
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('index') }}">
+                    <i class="fas fa-home me-1"></i> Home
+                </a>
+                <a class="nav-link active" href="{{ url_for('tableau_guide') }}">
+                    <i class="fas fa-book me-1"></i> Tableau Guide
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1><i class="fas fa-book me-2"></i>Tableau Integration Guide</h1>
+                <p class="lead">Step-by-step instructions to create your Customer Sentiment & CRM Dashboard in Tableau</p>
+            </div>
+        </div>
+
+        <!-- Quick Start -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h4><i class="fas fa-rocket me-2"></i>Quick Start Checklist</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check1">
+                                    <label class="form-check-label" for="check1">
+                                        Generate and download your CRM dataset
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check2">
+                                    <label class="form-check-label" for="check2">
+                                        Install Tableau Desktop (or use Tableau Public)
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check3">
+                                    <label class="form-check-label" for="check3">
+                                        Import CSV files into Tableau
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check4">
+                                    <label class="form-check-label" for="check4">
+                                        Follow dashboard creation steps below
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step-by-Step Guide -->
+        <div class="row">
+            <div class="col-12">
+                <!-- Step 1: Data Import -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">
+                            <span class="badge bg-primary me-2">1</span>
+                            Data Import & Setup
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <h5>Import Your CSV Files</h5>
+                        <ol>
+                            <li><strong>Open Tableau Desktop</strong> and click "Connect to Data"</li>
+                            <li><strong>Select "Text File"</strong> from the connection options</li>
+                            <li><strong>Import each CSV file:</strong>
+                                <ul>
+                                    <li><code>crm_customers.csv</code> - Customer information</li>
+                                    <li><code>crm_deals.csv</code> - Sales pipeline data</li>
+                                    <li><code>customer_feedback.csv</code> - Sentiment and feedback data</li>
+                                </ul>
+                            </li>
+                        </ol>
+
+                        <h5 class="mt-4">Create Data Relationships</h5>
+                        <ol>
+                            <li><strong>Drag all three tables</strong> to the relationship canvas</li>
+                            <li><strong>Connect tables using Customer_ID:</strong>
+                                <ul>
+                                    <li>Link <code>crm_customers</code> → <code>crm_deals</code> on Customer_ID</li>
+                                    <li>Link <code>crm_customers</code> → <code>customer_feedback</code> on Customer_ID</li>
+                                </ul>
+                            </li>
+                            <li><strong>Verify data types:</strong>
+                                <ul>
+                                    <li>Customer_ID: String</li>
+                                    <li>Deal_Size: Number (Currency)</li>
+                                    <li>Sentiment_Score: Number</li>
+                                    <li>Created_Date, Feedback_Date: Date</li>
+                                </ul>
+                            </li>
+                        </ol>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Tip:</strong> If you see data type issues, click the data type icon and change it to the correct type.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Key Metrics -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">
+                            <span class="badge bg-success me-2">2</span>
+                            Build Key Performance Indicators (KPIs)
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Create Calculated Fields</h5>
+                                <p>Go to <strong>Analysis → Create Calculated Field</strong> and create these metrics:</p>
+                                
+                                <div class="card bg-secondary mb-3">
+                                    <div class="card-body">
+                                        <h6>Churn Risk %</h6>
+                                        <code>
+                                            SUM(IF [Churn Risk] = "High" THEN 1 ELSE 0 END) / COUNT([Customer ID (Customer Feedback)])
+                                        </code>
+                                    </div>
+                                </div>
+
+                                <div class="card bg-secondary mb-3">
+                                    <div class="card-body">
+                                        <h6>Average Sentiment</h6>
+                                        <code>AVG([Sentiment Score])</code>
+                                    </div>
+                                </div>
+
+                                <div class="card bg-secondary mb-3">
+                                    <div class="card-body">
+                                        <h6>Pipeline Value</h6>
+                                        <code>
+                                            SUM(IF [Stage] != "Closed Lost" AND [Stage] != "Closed Won" THEN [Deal Size] ELSE 0 END)
+                                        </code>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Build KPI Dashboard</h5>
+                                <ol>
+                                    <li><strong>Create a new worksheet</strong> named "KPIs"</li>
+                                    <li><strong>Add calculated fields</strong> to the Text marks card</li>
+                                    <li><strong>Format as big numbers:</strong>
+                                        <ul>
+                                            <li>Right-click field → Format</li>
+                                            <li>Choose appropriate number format</li>
+                                            <li>Increase font size</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Add color coding:</strong>
+                                        <ul>
+                                            <li>Green: Positive sentiment, Low churn</li>
+                                            <li>Red: Negative sentiment, High churn</li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Visualizations -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">
+                            <span class="badge bg-warning text-dark me-2">3</span>
+                            Create Core Visualizations
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="accordion" id="visualizationAccordion">
+                            <!-- Sentiment Trend -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingTrend">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTrend">
+                                        <i class="fas fa-chart-line me-2"></i>Sentiment Trend Over Time
+                                    </button>
+                                </h2>
+                                <div id="collapseTrend" class="accordion-collapse collapse show" data-bs-parent="#visualizationAccordion">
+                                    <div class="accordion-body">
+                                        <ol>
+                                            <li>Create new worksheet: "Sentiment Trend"</li>
+                                            <li>Drag <strong>Feedback Date</strong> to Columns (change to Month/Year)</li>
+                                            <li>Drag <strong>Sentiment Score</strong> to Rows</li>
+                                            <li>Change mark type to <strong>Line</strong></li>
+                                            <li>Add <strong>Region</strong> to Color for multiple trend lines</li>
+                                            <li>Add trend line: Analytics pane → Trend Line</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Regional Analysis -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingRegion">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRegion">
+                                        <i class="fas fa-globe me-2"></i>Sentiment by Region
+                                    </button>
+                                </h2>
+                                <div id="collapseRegion" class="accordion-collapse collapse" data-bs-parent="#visualizationAccordion">
+                                    <div class="accordion-body">
+                                        <ol>
+                                            <li>Create new worksheet: "Regional Sentiment"</li>
+                                            <li>Drag <strong>Region</strong> to Columns</li>
+                                            <li>Drag <strong>AVG(Sentiment Score)</strong> to Rows</li>
+                                            <li>Change mark type to <strong>Bar</strong></li>
+                                            <li>Add <strong>Sentiment Score</strong> to Color (diverging color scheme)</li>
+                                            <li>Add reference line at 0 (neutral sentiment)</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Churn Risk Table -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingChurn">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseChurn">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>High Churn Risk Customers
+                                    </button>
+                                </h2>
+                                <div id="collapseChurn" class="accordion-collapse collapse" data-bs-parent="#visualizationAccordion">
+                                    <div class="accordion-body">
+                                        <ol>
+                                            <li>Create new worksheet: "Churn Risk"</li>
+                                            <li>Add filter: <strong>Churn Risk = "High"</strong></li>
+                                            <li>Drag to Rows: Customer Name, Company Name, Segment, Region</li>
+                                            <li>Drag <strong>AVG(Sentiment Score)</strong> to Color</li>
+                                            <li>Sort by sentiment score (ascending)</li>
+                                            <li>Format as table with conditional formatting</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Deal Pipeline -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingPipeline">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePipeline">
+                                        <i class="fas fa-funnel-dollar me-2"></i>Sales Pipeline Analysis
+                                    </button>
+                                </h2>
+                                <div id="collapsePipeline" class="accordion-collapse collapse" data-bs-parent="#visualizationAccordion">
+                                    <div class="accordion-body">
+                                        <ol>
+                                            <li>Create new worksheet: "Pipeline"</li>
+                                            <li>Drag <strong>Stage</strong> to Columns</li>
+                                            <li>Drag <strong>SUM(Deal Size)</strong> to Rows</li>
+                                            <li>Drag <strong>Stage</strong> to Color</li>
+                                            <li>Add <strong>COUNT(Deal ID)</strong> to Label</li>
+                                            <li>Format as currency and add totals</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Dashboard Assembly -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">
+                            <span class="badge bg-info me-2">4</span>
+                            Assemble Your Dashboard
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Dashboard Layout</h5>
+                                <ol>
+                                    <li><strong>Create new dashboard</strong> from Dashboard menu</li>
+                                    <li><strong>Set size to Automatic</strong> for responsive design</li>
+                                    <li><strong>Drag worksheets</strong> from left panel to dashboard</li>
+                                    <li><strong>Arrange in this layout:</strong>
+                                        <ul>
+                                            <li>Top row: KPI cards (4 across)</li>
+                                            <li>Middle row: Sentiment trend chart</li>
+                                            <li>Bottom left: Regional sentiment</li>
+                                            <li>Bottom right: High-risk customer table</li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Interactive Features</h5>
+                                <ol>
+                                    <li><strong>Add filters:</strong>
+                                        <ul>
+                                            <li>Region filter (affecting all views)</li>
+                                            <li>Date range filter</li>
+                                            <li>Segment filter</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Create actions:</strong>
+                                        <ul>
+                                            <li>Click region → highlight in other charts</li>
+                                            <li>Hover for details</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Add dashboard title</strong> with descriptive text</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5: AI Recommendations -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">
+                            <span class="badge bg-secondary me-2">5</span>
+                            Add AI-Powered Insights
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <h5>Create Recommendation Text Box</h5>
+                        <ol>
+                            <li><strong>Add a Text object</strong> to your dashboard</li>
+                            <li><strong>Format as insight box</strong> with light background</li>
+                            <li><strong>Add sample recommendations:</strong></li>
+                        </ol>
+
+                        <div class="card bg-light text-dark mt-3">
+                            <div class="card-header">
+                                <h6><i class="fas fa-brain me-2"></i>AI Recommendations Example</h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="mb-0">
+                                    <li><strong>Priority Action:</strong> Contact 23 Enterprise customers in North America with sentiment scores below -0.5</li>
+                                    <li><strong>Revenue Opportunity:</strong> Focus upselling efforts on satisfied SMB customers with deals under $10K</li>
+                                    <li><strong>Process Improvement:</strong> Address slow response times in APAC region (avg 28 hours vs 18 hours global)</li>
+                                    <li><strong>Retention Focus:</strong> Implement immediate outreach program for customers with unresolved negative feedback</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <h5 class="mt-4">Advanced: Dynamic Recommendations</h5>
+                        <p>For hackathon bonus points, create calculated fields that generate dynamic recommendations based on current filter selections:</p>
+                        
+                        <div class="card bg-secondary">
+                            <div class="card-body">
+                                <h6>Dynamic High-Risk Alert</h6>
+                                <code>
+                                    IF [Churn Risk %] > 0.3 THEN "⚠️ HIGH ALERT: " + STR(ROUND([Churn Risk %]*100)) + "% of customers at high churn risk"
+                                    ELSE "✅ Churn risk under control"
+                                    END
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 6: Extensions -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">
+                            <span class="badge bg-dark me-2">6</span>
+                            Optional Extensions
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-slack me-2"></i>Slack Integration</h5>
+                                <ul>
+                                    <li>Use Slack webhook to send alerts for high churn risk</li>
+                                    <li>Create calculated field for alert conditions</li>
+                                    <li>Use Tableau's webhook capability for real-time notifications</li>
+                                    <li>Sample webhook URL structure provided in data generator</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-cloud me-2"></i>Salesforce CRM Data</h5>
+                                <ul>
+                                    <li>Connect directly to Salesforce using Tableau connector</li>
+                                    <li>Map Salesforce fields to our generated schema</li>
+                                    <li>Blend with sentiment data for real customer insights</li>
+                                    <li>Use Salesforce Account, Opportunity, and Case objects</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <h5 class="mt-4"><i class="fas fa-cloud-word me-2"></i>Word Cloud Extension</h5>
+                        <p>For negative feedback analysis:</p>
+                        <ol>
+                            <li>Filter feedback to negative sentiment only</li>
+                            <li>Use Tableau's built-in word cloud or extension</li>
+                            <li>Show most frequent pain points visually</li>
+                            <li>Link to detailed feedback table for drill-down</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Hackathon Tips -->
+                <div class="card bg-success text-white">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-trophy me-2"></i>Hackathon Success Tips
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Demo Preparation</h5>
+                                <ul>
+                                    <li><strong>Practice your story:</strong> Start with business problem, show data insights, end with action items</li>
+                                    <li><strong>Prepare filters:</strong> Have specific scenarios ready (e.g., "Show me Enterprise customers in APAC")</li>
+                                    <li><strong>Know your data:</strong> Be ready to explain how sentiment scores are calculated</li>
+                                    <li><strong>Highlight AI features:</strong> Emphasize the automated recommendations</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Presentation Flow</h5>
+                                <ol>
+                                    <li><strong>Problem Statement</strong> (30 seconds): "Customer churn is expensive, but how do we predict it?"</li>
+                                    <li><strong>Solution Overview</strong> (60 seconds): Show the dashboard and key metrics</li>
+                                    <li><strong>Interactive Demo</strong> (90 seconds): Filter by region, show high-risk customers, explain recommendations</li>
+                                    <li><strong>Business Impact</strong> (30 seconds): "This helps prioritize customer success efforts and prevent $X in churn"</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Add checkmark functionality to quick start checklist
+        document.querySelectorAll('.form-check-input').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    this.parentElement.style.textDecoration = 'line-through';
+                    this.parentElement.style.opacity = '0.7';
+                } else {
+                    this.parentElement.style.textDecoration = 'none';
+                    this.parentElement.style.opacity = '1';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

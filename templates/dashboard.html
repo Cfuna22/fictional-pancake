@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generated Data Dashboard</title>
+    <link
+      href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="{{ url_for('static', filename='style.css') }}"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container">
+        <a class="navbar-brand" href="{{ url_for('index') }}">
+          <i class="fas fa-chart-line me-2"></i>
+          CRM Sentiment Dashboard
+        </a>
+        <div class="navbar-nav ms-auto">
+          <a class="nav-link" href="{{ url_for('index') }}">
+            <i class="fas fa-home me-1"></i> Home
+          </a>
+          <a class="nav-link" href="{{ url_for('tableau_guide') }}">
+            <i class="fas fa-book me-1"></i> Tableau Guide
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="alert alert-{{ 'danger' if category == 'error' else ('warning' if category == 'warning' else 'success') }} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+        ></button>
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <!-- Header Section -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h1>
+                <i class="fas fa-database me-2"></i>Generated Dataset Preview
+              </h1>
+              <p class="text-muted">
+                Your CRM and sentiment data is ready for Tableau analysis
+              </p>
+            </div>
+            <div class="dropdown">
+              <button
+                class="btn btn-success dropdown-toggle"
+                type="button"
+                id="downloadDropdown"
+                data-bs-toggle="dropdown"
+              >
+                <i class="fas fa-download me-2"></i>Download Data
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('download_csv', dataset='customers') }}"
+                  >
+                    <i class="fas fa-users me-2"></i>Customer Data (CSV)
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('download_csv', dataset='deals') }}"
+                  >
+                    <i class="fas fa-handshake me-2"></i>Deal Pipeline (CSV)
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="{{ url_for('download_csv', dataset='feedback') }}"
+                  >
+                    <i class="fas fa-comments me-2"></i>Customer Feedback (CSV)
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" href="{{ url_for('download_all') }}">
+                    <i class="fas fa-file-archive me-2"></i>Download All (ZIP)
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+          <div class="card bg-primary text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h4 class="card-title">{{ stats.total_customers }}</h4>
+                  <p class="card-text">Total Customers</p>
+                </div>
+                <div class="align-self-center">
+                  <i class="fas fa-users fa-2x"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card bg-success text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h4 class="card-title">
+                    ${{ "{:,.0f}".format(stats.total_pipeline) }}
+                  </h4>
+                  <p class="card-text">Pipeline Value</p>
+                </div>
+                <div class="align-self-center">
+                  <i class="fas fa-dollar-sign fa-2x"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card bg-warning text-dark">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h4 class="card-title">{{ stats.avg_sentiment }}</h4>
+                  <p class="card-text">Avg Sentiment</p>
+                </div>
+                <div class="align-self-center">
+                  <i class="fas fa-heart fa-2x"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card bg-danger text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <h4 class="card-title">{{ stats.churn_risk_percent }}%</h4>
+                  <p class="card-text">High Churn Risk</p>
+                </div>
+                <div class="align-self-center">
+                  <i class="fas fa-exclamation-triangle fa-2x"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="row mb-4">
+        <div class="col-md-6 mb-4">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-chart-bar me-2"></i>Sentiment by Region
+              </h5>
+            </div>
+            <div class="card-body">
+              <canvas id="sentimentByRegionChart" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-4">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-chart-pie me-2"></i>Churn Risk Distribution
+              </h5>
+            </div>
+            <div class="card-body">
+              <canvas id="churnRiskChart" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Recommendations -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-brain me-2"></i>AI-Powered Recommendations
+              </h5>
+            </div>
+            <div class="card-body">
+              <div id="recommendations-content">
+                <div class="text-center">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden"
+                      >Loading recommendations...</span
+                    >
+                  </div>
+                  <p class="mt-2">
+                    Analyzing your data to generate insights...
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Preview Tabs -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link active"
+                    id="customers-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#customers"
+                    type="button"
+                    role="tab"
+                  >
+                    <i class="fas fa-users me-1"></i>Customers ({{
+                    customers|length }})
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link"
+                    id="deals-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#deals"
+                    type="button"
+                    role="tab"
+                  >
+                    <i class="fas fa-handshake me-1"></i>Deals ({{ deals|length
+                    }})
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button
+                    class="nav-link"
+                    id="feedback-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#feedback"
+                    type="button"
+                    role="tab"
+                  >
+                    <i class="fas fa-comments me-1"></i>Feedback ({{
+                    feedback|length }})
+                  </button>
+                </li>
+              </ul>
+            </div>
+            <div class="card-body">
+              <div class="tab-content">
+                <!-- Customers Tab -->
+                <div
+                  class="tab-pane fade show active"
+                  id="customers"
+                  role="tabpanel"
+                >
+                  <div class="table-responsive">
+                    <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th>Customer ID</th>
+                          <th>Name</th>
+                          <th>Company</th>
+                          <th>Segment</th>
+                          <th>Region</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for _, customer in customers.iterrows() %}
+                        <tr>
+                          <td>{{ customer.Customer_ID }}</td>
+                          <td>{{ customer.Customer_Name }}</td>
+                          <td>{{ customer.Company_Name }}</td>
+                          <td>
+                            <span
+                              class="badge bg-{% if customer.Segment == 'Enterprise' %}primary{% elif customer.Segment == 'Mid-Market' %}success{% else %}secondary{% endif %}"
+                            >
+                              {{ customer.Segment }}
+                            </span>
+                          </td>
+                          <td>{{ customer.Region }}</td>
+                          <td>
+                            <span
+                              class="badge bg-{% if customer.Status == 'Active' %}success{% elif customer.Status == 'Inactive' %}warning{% else %}danger{% endif %}"
+                            >
+                              {{ customer.Status }}
+                            </span>
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="text-muted small">
+                    Showing first 10 records. Download CSV for complete dataset.
+                  </p>
+                </div>
+
+                <!-- Deals Tab -->
+                <div class="tab-pane fade" id="deals" role="tabpanel">
+                  <div class="table-responsive">
+                    <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th>Deal ID</th>
+                          <th>Customer ID</th>
+                          <th>Deal Name</th>
+                          <th>Size</th>
+                          <th>Stage</th>
+                          <th>Probability</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for _, deal in deals.iterrows() %}
+                        <tr>
+                          <td>{{ deal.Deal_ID }}</td>
+                          <td>{{ deal.Customer_ID }}</td>
+                          <td>{{ deal.Deal_Name }}</td>
+                          <td>${{ "{:,.0f}".format(deal.Deal_Size) }}</td>
+                          <td>
+                            <span
+                              class="badge bg-{% if deal.Stage == 'Closed Won' %}success{% elif deal.Stage == 'Closed Lost' %}danger{% else %}primary{% endif %}"
+                            >
+                              {{ deal.Stage }}
+                            </span>
+                          </td>
+                          <td>{{ "{:.0%}".format(deal.Close_Probability) }}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="text-muted small">
+                    Showing first 10 records. Download CSV for complete dataset.
+                  </p>
+                </div>
+
+                <!-- Feedback Tab -->
+                <div class="tab-pane fade" id="feedback" role="tabpanel">
+                  <div class="table-responsive">
+                    <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th>Feedback ID</th>
+                          <th>Customer ID</th>
+                          <th>Feedback Text</th>
+                          <th>Sentiment</th>
+                          <th>Churn Risk</th>
+                          <th>Channel</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for _, fb in feedback.iterrows() %}
+                        <tr>
+                          <td>{{ fb.Feedback_ID }}</td>
+                          <td>{{ fb.Customer_ID }}</td>
+                          <td class="text-truncate" style="max-width: 200px">
+                            {{ fb.Feedback_Text }}
+                          </td>
+                          <td>
+                            <span
+                              class="badge bg-{% if fb.Sentiment_Score > 0.2 %}success{% elif fb.Sentiment_Score < -0.2 %}danger{% else %}warning{% endif %}"
+                            >
+                              {{ fb.Sentiment_Score }}
+                            </span>
+                          </td>
+                          <td>
+                            <span
+                              class="badge bg-{% if fb.Churn_Risk == 'High' %}danger{% elif fb.Churn_Risk == 'Medium' %}warning{% else %}success{% endif %}"
+                            >
+                              {{ fb.Churn_Risk }}
+                            </span>
+                          </td>
+                          <td>{{ fb.Feedback_Channel }}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="text-muted small">
+                    Showing first 10 records. Download CSV for complete dataset.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next Steps -->
+      <div class="row mt-4 mb-4">
+        <div class="col-12">
+          <div class="card bg-info text-dark">
+            <div class="card-body text-center">
+              <h4><i class="fas fa-lightbulb me-2"></i>Ready for Tableau?</h4>
+              <p class="mb-3">Your data is ready! Follow these next steps:</p>
+              <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="{{ url_for('download_all') }}" class="btn btn-dark">
+                  <i class="fas fa-download me-1"></i> Download All Data
+                </a>
+                <a href="{{ url_for('tableau_guide') }}" class="btn btn-dark">
+                  <i class="fas fa-book me-1"></i> Tableau Setup Guide
+                </a>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-dark">
+                  <i class="fas fa-plus me-1"></i> Generate New Dataset
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+  </body>
+</html>
